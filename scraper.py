@@ -85,8 +85,8 @@ def convert_mth_strings ( mth_string ):
 
 #### VARIABLES 1.0
 
-entity_id = "E0931_ABC_gov"
-url = "https://www.allerdale.gov.uk/en/about-council/budget-and-spending/spending-council/"
+entity_id = "E2531_BBC_gov"
+url = "http://www.boston.gov.uk/index.aspx?articleid=3909"
 errors = 0
 data = []
 
@@ -94,19 +94,21 @@ data = []
 #### READ HTML 1.0
 
 html = urllib2.urlopen(url)
-soup = BeautifulSoup(html, "lxml")
+soup = BeautifulSoup(html, 'lxml')
 
 #### SCRAPE DATA
 
-links = soup.find_all('a')
+links = soup.find('table', "TableWithShading").find_all('a', href=True)
 for link in links:
-    file_name = link.text
-    if 'Spending' in file_name and '.csv' in link['href']:
+    if 'http' not in link['href']:
+        url = 'http://www.boston.gov.uk/' + link['href']
+    else:
         url = link['href']
-        csvYr = file_name.replace('Spending ', '').strip()[-4:]
-        csvMth = file_name.replace('Spending ', '').strip()[:3]
-        csvMth = convert_mth_strings(csvMth.upper())
-        data.append([csvYr, csvMth, url])
+    file_name = link.text.strip()
+    csvYr = file_name.split()[1]
+    csvMth = file_name.split()[0][:3]
+    csvMth = convert_mth_strings(csvMth.upper())
+    data.append([csvYr, csvMth, url])
 
 
 #### STORE DATA 1.0
